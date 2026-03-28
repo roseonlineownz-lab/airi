@@ -39,7 +39,7 @@ describe('origin utils', () => {
       },
     })
 
-    expect(getAuthTrustedOrigins({ API_SERVER_URL: 'https://api.airi.moeru.ai' } as any, request)).toEqual([
+    expect(getAuthTrustedOrigins({ AUTH_BASE_URL: 'https://api.airi.moeru.ai' } as any, request)).toEqual([
       'https://api.airi.moeru.ai',
       'http://localhost:5173',
     ])

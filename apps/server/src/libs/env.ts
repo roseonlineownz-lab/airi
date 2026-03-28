@@ -38,7 +38,10 @@ const EnvSchema = object({
   HOST: optional(string(), '0.0.0.0'),
   PORT: optionalIntegerFromString(3000, 'PORT', 1),
 
-  API_SERVER_URL: optional(string(), 'http://localhost:3000'),
+  // NOTICE: This is the public-facing URL that end users' browsers see (e.g. the
+  // Cloudflare Workers proxy), NOT the internal server address. Better Auth uses
+  // it as baseURL to generate cookies, OAuth callbacks, and redirects.
+  AUTH_BASE_URL: optional(string(), 'http://localhost:3000'),
 
   DATABASE_URL: pipe(string(), nonEmpty('DATABASE_URL is required')),
   REDIS_URL: pipe(string(), nonEmpty('REDIS_URL is required')),

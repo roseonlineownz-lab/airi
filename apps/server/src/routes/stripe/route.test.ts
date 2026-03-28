@@ -65,7 +65,7 @@ function createMockConfigKV(overrides: Record<string, any> = {}): ConfigKVServic
 const testEnv = {
   STRIPE_SECRET_KEY: 'sk_test_fake',
   STRIPE_WEBHOOK_SECRET: 'whsec_test_fake',
-  API_SERVER_URL: 'http://localhost:8787',
+  AUTH_BASE_URL: 'http://localhost:8787',
 } as any
 
 const testUser = { id: 'user-1', name: 'Test User', email: 'test@example.com' }

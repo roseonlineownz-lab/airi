@@ -53,9 +53,9 @@ export function resolveTrustedRequestOrigin(request: Request): string | undefine
   return undefined
 }
 
-export function getAuthTrustedOrigins(env: Pick<Env, 'API_SERVER_URL'>, request?: Request): string[] {
+export function getAuthTrustedOrigins(env: Pick<Env, 'AUTH_BASE_URL'>, request?: Request): string[] {
   const origins = new Set<string>()
-  const apiServerOrigin = getOriginFromUrl(env.API_SERVER_URL)
+  const apiServerOrigin = getOriginFromUrl(env.AUTH_BASE_URL)
   if (apiServerOrigin) {
     origins.add(apiServerOrigin)
   }

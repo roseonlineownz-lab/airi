@@ -31,7 +31,7 @@ export function createAuth(db: Database, env: Env, metrics?: AuthMetrics | null)
       enabled: true,
     },
 
-    baseURL: env.API_SERVER_URL,
+    baseURL: env.AUTH_BASE_URL,
     trustedOrigins: request => getAuthTrustedOrigins(env, request),
 
     // NOTICE: skipStateCookieCheck required for Capacitor mobile apps.

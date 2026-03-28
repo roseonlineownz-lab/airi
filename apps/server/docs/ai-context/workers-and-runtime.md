@@ -115,7 +115,7 @@
 
 - `HOST`
 - `PORT`
-- `API_SERVER_URL`
+- `AUTH_BASE_URL`
 - `DATABASE_URL`
 - `REDIS_URL`
 
