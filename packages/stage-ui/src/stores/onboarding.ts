@@ -46,7 +46,6 @@ export const useOnboardingStore = defineStore('onboarding', () => {
   const skipOnboardingPath = ['/auth/login']
   const needsOnboarding = computed(() =>
     !authStore.isAuthenticated
-    && !authStore.token
     && !hasSkippedSetup.value
     && !hasCompletedSetup.value
     && !skipOnboardingPath.includes(document.location.pathname),

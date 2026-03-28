@@ -57,7 +57,6 @@ jobs:
           S3_ENDPOINT: ${{ secrets.S3_ENDPOINT }}
           S3_REGION: ${{ secrets.S3_REGION }}
           WARP_DRIVE_PUBLIC_BASE: ${{ secrets.WARP_DRIVE_PUBLIC_BASE }}
-          VITE_SERVER_URL: 'https://airi-server-dev.up.railway.app'
 
       - name: Wrangler Upload
         id: wrangler-versions-upload
@@ -65,7 +64,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: versions upload -c ./apps/stage-web/wrangler.toml --preview-alias server-dev --message "GitHub Actions uploaded server-dev branch preview" --tag v0.0.1-server-dev
+          command: versions upload -c ./apps/stage-web/wrangler.toml --var API_ORIGIN:https://airi-server-dev.up.railway.app --preview-alias server-dev --message "GitHub Actions uploaded server-dev branch preview" --tag v0.0.1-server-dev
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Prepare preview URL

@@ -19,7 +19,6 @@ export const useAuthStore = defineStore('auth', () => {
     serializer: StorageSerializers.object,
   })
   const session = useLocalStorage<Session | null>('auth/v1/session', null, { serializer: StorageSerializers.object })
-  const token = useLocalStorage<string | null>('auth/v1/token', null)
   const isAuthenticated = computed(() => !!user.value && !!session.value)
   const userId = computed(() => user.value?.id ?? 'local')
 
@@ -110,7 +109,6 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     userId,
     session,
-    token,
     isAuthenticated,
     credits,
     updateCredits,

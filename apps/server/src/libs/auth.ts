@@ -34,8 +34,6 @@ export function createAuth(db: Database, env: Env, metrics?: AuthMetrics | null)
     baseURL: env.API_SERVER_URL,
     trustedOrigins: request => getAuthTrustedOrigins(env, request),
 
-    advanced: {},
-
     // NOTICE: skipStateCookieCheck required for Capacitor mobile apps.
     // Default state strategy is 'database' (we have a DB), but better-auth
     // still validates a signed state cookie (state.mjs L89-94). In Capacitor,
