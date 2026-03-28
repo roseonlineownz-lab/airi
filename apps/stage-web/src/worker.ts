@@ -15,7 +15,7 @@ export default {
     if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/ws/')) {
       const target = new URL(url.pathname + url.search, env.API_ORIGIN)
       const headers = new Headers(request.headers)
-      headers.set('host', target.host)
+      headers.set('host', new URL(env.API_ORIGIN).host)
       headers.set('x-forwarded-host', url.host)
 
       return fetch(target, {
@@ -26,7 +26,12 @@ export default {
       })
     }
 
-    // Everything else → static assets (SPA)
-    return env.ASSETS.fetch(request)
+    // Everything else → static assets with SPA fallback
+    const assetResponse = await env.ASSETS.fetch(request)
+    if (assetResponse.status === 404) {
+      // SPA fallback: serve index.html for client-side routing
+      return env.ASSETS.fetch(new Request(new URL('/', request.url), request))
+    }
+    return assetResponse
   },
 } as { fetch: (request: Request, env: Env) => Promise<Response> }
