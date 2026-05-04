@@ -33,7 +33,11 @@ jobs:
       - name: Parse metadata
         id: meta
         run: |
-          source preview-meta/preview_meta
+          PR_NUM=$(jq -r '.PR_NUM' preview-meta/preview_meta)
+          REPO_FULL_NAME=$(jq -r '.REPO_FULL_NAME' preview-meta/preview_meta)
+          HEAD_REF=$(jq -r '.HEAD_REF' preview-meta/preview_meta)
+          HEAD_SHA=$(jq -r '.HEAD_SHA' preview-meta/preview_meta)
+
           echo "PR_NUM=$PR_NUM" >> "$GITHUB_OUTPUT"
           echo "REPO_FULL_NAME=$REPO_FULL_NAME" >> "$GITHUB_OUTPUT"
           echo "HEAD_REF=$HEAD_REF" >> "$GITHUB_OUTPUT"
@@ -103,7 +107,11 @@ jobs:
       - name: Parse metadata
         id: meta
         run: |
-          source preview-meta/preview_meta
+          PR_NUM=$(jq -r '.PR_NUM' preview-meta/preview_meta)
+          REPO_FULL_NAME=$(jq -r '.REPO_FULL_NAME' preview-meta/preview_meta)
+          HEAD_REF=$(jq -r '.HEAD_REF' preview-meta/preview_meta)
+          HEAD_SHA=$(jq -r '.HEAD_SHA' preview-meta/preview_meta)
+
           echo "PR_NUM=$PR_NUM" >> "$GITHUB_OUTPUT"
           echo "REPO_FULL_NAME=$REPO_FULL_NAME" >> "$GITHUB_OUTPUT"
           echo "HEAD_REF=$HEAD_REF" >> "$GITHUB_OUTPUT"

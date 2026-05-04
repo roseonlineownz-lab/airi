@@ -16,10 +16,12 @@ jobs:
       - name: Persist checkout metadata
         run: |
           cat <<EOF > preview_meta
-          PR_NUM=${{ github.event.number }}
-          REPO_FULL_NAME=${{ github.event.pull_request.head.repo.full_name }}
-          HEAD_REF=${{ github.event.pull_request.head.ref }}
-          HEAD_SHA=${{ github.event.pull_request.head.sha }}
+          {
+            "PR_NUM": ${{ toJSON(github.event.number) }},
+            "REPO_FULL_NAME": ${{ toJSON(github.event.pull_request.head.repo.full_name) }},
+            "HEAD_REF": ${{ toJSON(github.event.pull_request.head.ref) }},
+            "HEAD_SHA": ${{ toJSON(github.event.pull_request.head.sha) }}
+          }
           EOF
 
       - name: Upload metadata artifact
