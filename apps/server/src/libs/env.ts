@@ -40,6 +40,9 @@ const EnvSchema = object({
 
   API_SERVER_URL: optional(string(), 'http://localhost:3000'),
 
+  AIRI_LOCAL_ADMIN_TOKEN: optional(pipe(string(), nonEmpty('AIRI_LOCAL_ADMIN_TOKEN must not be empty'))),
+  AIRI_LOCAL_ADMIN_USER_ID: optional(pipe(string(), nonEmpty('AIRI_LOCAL_ADMIN_USER_ID must not be empty')), 'airi-local-admin'),
+
   DATABASE_URL: pipe(string(), nonEmpty('DATABASE_URL is required')),
   REDIS_URL: pipe(string(), nonEmpty('REDIS_URL is required')),
 

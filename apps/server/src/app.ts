@@ -1,5 +1,6 @@
 import type Redis from 'ioredis'
 
+import type { Database } from './libs/db'
 import type { Env } from './libs/env'
 import type { MqService } from './libs/mq'
 import type { OtelInstance } from './libs/otel'
@@ -56,6 +57,7 @@ import { getTrustedOrigin } from './utils/origin'
 
 interface AppDeps {
   auth: ReturnType<typeof createAuth>
+  db: Database
   characterService: CharacterService
   chatService: ChatService
   providerService: ProviderService
@@ -184,7 +186,10 @@ async function buildApp(deps: AppDeps) {
     /**
      * Character routes are handled by the character service.
      */
-    .route('/api/v1/characters', createCharacterRoutes(deps.characterService))
+    .route('/api/v1/characters', createCharacterRoutes(deps.characterService, {
+      db: deps.db,
+      env: deps.env,
+    }))
 
     /**
      * Provider routes are handled by the provider service.
@@ -371,6 +376,7 @@ export async function createApp() {
   })
   const { app, injectWebSocket } = await buildApp({
     auth: resolved.auth,
+    db: resolved.db,
     characterService: resolved.characterService,
     chatService: resolved.chatService,
     providerService: resolved.providerService,

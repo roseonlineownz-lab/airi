@@ -1,22 +1,60 @@
+import type { Database } from '../../libs/db'
+import type { Env } from '../../libs/env'
 import type { CharacterService } from '../../services/characters'
 import type { HonoEnv } from '../../types/hono'
 
+import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
 import { safeParse } from 'valibot'
 
-import { authGuard } from '../../middlewares/auth'
+import { authGuard, localAdminTokenMiddleware } from '../../middlewares/auth'
+import * as schema from '../../schemas'
 import { createBadRequestError, createForbiddenError, createNotFoundError } from '../../utils/error'
 import { CreateCharacterSchema, UpdateCharacterSchema } from './schema'
 
-export function createCharacterRoutes(characterService: CharacterService) {
+interface CharacterRouteOptions {
+  db?: Database
+  env?: Pick<Env, 'AIRI_LOCAL_ADMIN_TOKEN' | 'AIRI_LOCAL_ADMIN_USER_ID'>
+}
+
+async function ensureLocalAdminUser(db: Database, userId: string) {
+  const emailSafeUserId = userId.replace(/[^a-zA-Z0-9._-]/g, '-')
+  const email = `airi-local-admin+${emailSafeUserId}@localhost.invalid`
+
+  await db.insert(schema.user).values({
+    id: userId,
+    name: 'AIRI Local Admin',
+    email,
+    emailVerified: true,
+  }).onConflictDoNothing({ target: schema.user.id })
+
+  const user = await db.query.user.findFirst({
+    where: eq(schema.user.id, userId),
+  })
+
+  if (!user)
+    throw createForbiddenError('Local admin user could not be created')
+
+  return user
+}
+
+export function createCharacterRoutes(characterService: CharacterService, options: CharacterRouteOptions = {}) {
   return new Hono<HonoEnv>()
+    .use('*', localAdminTokenMiddleware({
+      token: options.env?.AIRI_LOCAL_ADMIN_TOKEN,
+      userId: options.env?.AIRI_LOCAL_ADMIN_USER_ID,
+      getUser: options.db && options.env
+        ? () => ensureLocalAdminUser(options.db!, options.env!.AIRI_LOCAL_ADMIN_USER_ID)
+        : undefined,
+    }))
     .use('*', authGuard)
 
     .get('/', async (c) => {
       const user = c.get('user')!
       const all = c.req.query('all') === 'true'
+      const localAdmin = c.get('localAdmin') === true
 
-      const characters = all
+      const characters = all || localAdmin
         ? await characterService.findAll()
         : await characterService.findByOwnerId(user.id)
       return c.json(characters)
@@ -69,7 +107,7 @@ export function createCharacterRoutes(characterService: CharacterService) {
       const existing = await characterService.findById(id)
       if (!existing)
         throw createNotFoundError()
-      if (existing.ownerId !== user.id)
+      if (c.get('localAdmin') !== true && existing.ownerId !== user.id)
         throw createForbiddenError()
 
       const updated = await characterService.update(id, result.output)
@@ -84,7 +122,7 @@ export function createCharacterRoutes(characterService: CharacterService) {
       const existing = await characterService.findById(id)
       if (!existing)
         throw createNotFoundError()
-      if (existing.ownerId !== user.id)
+      if (c.get('localAdmin') !== true && existing.ownerId !== user.id)
         throw createForbiddenError()
 
       await characterService.delete(id)

@@ -29,7 +29,13 @@ describe('characterRoutes', () => {
     }).returning()
     testUser = user
 
-    const routes = createCharacterRoutes(characterService)
+    const routes = createCharacterRoutes(characterService, {
+      db,
+      env: {
+        AIRI_LOCAL_ADMIN_TOKEN: 'local-admin-test-token',
+        AIRI_LOCAL_ADMIN_USER_ID: 'airi-local-admin-test',
+      },
+    })
     app = new Hono<HonoEnv>()
 
     app.onError((err, c) => {
@@ -56,6 +62,13 @@ describe('characterRoutes', () => {
 
   it('get / should return unauthorized if no user', async () => {
     const res = await app.request('/')
+    expect(res.status).toBe(401)
+  })
+
+  it('local admin token should be rejected for non-loopback requests', async () => {
+    const res = await app.fetch(new Request('http://example.com/', {
+      headers: { 'x-airi-admin-token': 'local-admin-test-token' },
+    }))
     expect(res.status).toBe(401)
   })
 
@@ -158,5 +171,41 @@ describe('characterRoutes', () => {
     expect(res.status).toBe(204)
     const char = await characterService.findById(charId)
     expect(char).toBeUndefined()
+  })
+
+  it('local admin token should allow sessionless list/create/read/update', async () => {
+    const headers = {
+      'Content-Type': 'application/json',
+      'x-airi-admin-token': 'local-admin-test-token',
+    }
+    const payload = {
+      character: { version: '1', coverUrl: 'admin-url', characterId: 'admin-cid' },
+      i18n: [{ language: 'en', name: 'Local Admin Character', description: 'desc', tags: [] }],
+    }
+
+    const createRes = await app.fetch(new Request('http://localhost/', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers,
+    }))
+    expect(createRes.status, await createRes.clone().text()).toBe(201)
+    const created = await createRes.json() as any
+
+    const listRes = await app.fetch(new Request('http://localhost/', { headers }))
+    expect(listRes.status).toBe(200)
+    const list = await listRes.json() as any[]
+    expect(list.some(character => character.id === created.id)).toBe(true)
+
+    const readRes = await app.fetch(new Request(`http://localhost/${created.id}`, { headers }))
+    expect(readRes.status).toBe(200)
+
+    const updateRes = await app.fetch(new Request(`http://localhost/${created.id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ version: '1.1' }),
+      headers,
+    }))
+    expect(updateRes.status).toBe(200)
+    const updated = await characterService.findById(created.id)
+    expect(updated?.version).toBe('1.1')
   })
 })
