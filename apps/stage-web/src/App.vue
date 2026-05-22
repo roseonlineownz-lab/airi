@@ -88,12 +88,14 @@ onMounted(async () => {
   }
 
   await chatSessionStore.initialize()
+  // Keep the visible stage independent from optional companion bridges.
+  // A missing mods WebSocket should not block Live2D/VRM model mounting.
+  await displayModelsStore.loadDisplayModelsFromIndexedDB()
+  await settingsStore.initializeStageModel()
+
   await serverChannelStore.initialize({ possibleEvents: ['ui:configure'] }).catch(err => console.error('Failed to initialize Mods Server Channel in App.vue:', err))
   await contextBridgeStore.initialize()
   characterOrchestratorStore.initialize()
-
-  await displayModelsStore.loadDisplayModelsFromIndexedDB()
-  await settingsStore.initializeStageModel()
   await settingsAudioDeviceStore.initialize()
 })
 

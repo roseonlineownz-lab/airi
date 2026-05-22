@@ -7,6 +7,10 @@ describe('origin utils', () => {
     expect(getTrustedOrigin('http://localhost:5173')).toBe('http://localhost:5173')
   })
 
+  it('allows 127.0.0.1 origins', () => {
+    expect(getTrustedOrigin('http://127.0.0.1:6113')).toBe('http://127.0.0.1:6113')
+  })
+
   it('rejects untrusted origins', () => {
     expect(getTrustedOrigin('https://example.com')).toBe('')
   })

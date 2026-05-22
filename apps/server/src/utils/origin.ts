@@ -10,8 +10,8 @@ function getOriginFromUrl(url: string): string | undefined {
 }
 
 export function getTrustedOrigin(origin: string): string {
-  // 1. Allow Dev (Localhost with any port)
-  if (!origin || origin.startsWith('http://localhost:')) {
+  // 1. Allow local development hosts with any port.
+  if (!origin || origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
     return origin
   }
 
