@@ -645,6 +645,63 @@ export const useProvidersStore = defineStore('providers', () => {
       },
       creator: createOpenAI,
     }),
+    'noiz-audio-speech': buildOpenAICompatibleProvider({
+      id: 'noiz-audio-speech',
+      name: 'Noiz.ai',
+      nameKey: 'settings.pages.providers.provider.noiz-audio-speech.title',
+      descriptionKey: 'settings.pages.providers.provider.noiz-audio-speech.description',
+      icon: 'i-solar:soundwave-bold-duotone',
+      description: 'Local Noiz.ai TTS bridge for expressive voice generation.',
+      category: 'speech',
+      tasks: ['text-to-speech', 'tts'],
+      defaultBaseUrl: 'http://127.0.0.1:8118/v1/',
+      requiresCredentials: false,
+      defaultOptions: () => ({
+        baseUrl: 'http://127.0.0.1:8118/v1/',
+      }),
+      validators: {
+        chatPingCheckAvailable: false,
+        validateProviderConfig: (config) => {
+          const res = baseUrlValidator.value(config.baseUrl)
+          return res ?? { errors: [], reason: '', valid: true }
+        },
+      },
+      capabilities: {
+        listVoices: async (config: Record<string, unknown>) => {
+          const baseUrl = typeof config.baseUrl === 'string' && config.baseUrl.trim()
+            ? config.baseUrl.trim().replace(/\/v1\/?$/, '')
+            : 'http://127.0.0.1:8118'
+          const res = await fetch(`${baseUrl}/voices?voice_type=built-in&skip=0&limit=20`)
+          if (!res.ok)
+            return []
+
+          const payload = await res.json()
+          const voices = payload?.data?.voices ?? []
+          return voices.map((voice: any) => ({
+            id: String(voice.voice_id),
+            name: voice.display_name || voice.voice_id,
+            description: voice.display_name || voice.voice_id,
+            previewURL: voice.sample || voice.url || '',
+            provider: 'noiz-audio-speech',
+            languages: [{ code: 'en', title: 'English' }],
+            gender: 'neutral',
+          }) satisfies VoiceInfo)
+        },
+        listModels: async () => {
+          return [
+            {
+              id: 'noiz-tts',
+              name: 'Noiz TTS',
+              provider: 'noiz-audio-speech',
+              description: 'Noiz.ai text-to-speech via local Nova bridge.',
+              contextLength: 5000,
+              deprecated: false,
+            },
+          ]
+        },
+      },
+      creator: createOpenAI,
+    }),
     'openai-audio-transcription': buildOpenAICompatibleProvider({
       id: 'openai-audio-transcription',
       name: 'OpenAI',

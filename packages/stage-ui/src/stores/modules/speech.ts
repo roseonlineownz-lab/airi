@@ -25,9 +25,9 @@ export const useSpeechStore = defineStore('speech', () => {
   const { allAudioSpeechProvidersMetadata } = storeToRefs(providersStore)
 
   // State
-  const activeSpeechProvider = useLocalStorageManualReset<string>('settings/speech/active-provider', 'speech-noop')
-  const activeSpeechModel = useLocalStorageManualReset<string>('settings/speech/active-model', '')
-  const activeSpeechVoiceId = useLocalStorageManualReset<string>('settings/speech/voice', '')
+  const activeSpeechProvider = useLocalStorageManualReset<string>('settings/speech/active-provider', 'noiz-audio-speech')
+  const activeSpeechModel = useLocalStorageManualReset<string>('settings/speech/active-model', 'noiz-tts')
+  const activeSpeechVoiceId = useLocalStorageManualReset<string>('settings/speech/voice', '0e4ab6ec')
   const activeSpeechVoice = refManualReset<VoiceInfo | undefined>(undefined)
 
   const pitch = useLocalStorageManualReset<number>('settings/speech/pitch', 0)
